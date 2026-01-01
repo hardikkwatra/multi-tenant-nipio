@@ -6,7 +6,7 @@ The solution uses **nip.io** for DNS resolution, allowing each tenant to be acce
 
 ---
 
-## 🚀 Live Demo (Working URLs)
+## Live Demo (Working URLs)
 
 - **Tenant 1:** https://tenant1.35.172.209.7.nip.io/
 - **Tenant 2:** https://tenant2.3.91.45.200.nip.io/
@@ -17,7 +17,7 @@ The solution uses **nip.io** for DNS resolution, allowing each tenant to be acce
 
 ---
 
-## 🧩 What Each Tenant Gets
+## What Each Tenant Gets
 
 Each tenant is provisioned with **dedicated resources**:
 
@@ -31,15 +31,13 @@ This ensures strong logical isolation between tenants.
 
 ---
 
-## 🌐 How nip.io Works (DNS Without a Domain)
+## How nip.io Works (DNS Without a Domain)
 
 `nip.io` is a wildcard DNS service that automatically resolves hostnames containing an IP address to that IP.
 
 Example:
 tenant1.35.172.209.7.nip.io → 35.172.209.7
 
-yaml
-Copy code
 
 This allows us to simulate per-tenant subdomains **without owning or managing a domain**.  
 In production, this would be replaced with customer-owned domains and managed DNS (Route53, Cloudflare, etc.).
@@ -65,12 +63,10 @@ In production, this would be replaced with customer-owned domains and managed DN
 └── docs/
 └── CUSTOMER_DOC.md
 
-yaml
-Copy code
 
 ---
 
-## ✅ Prerequisites
+## Prerequisites
 
 - Terraform **>= 1.5**
 - AWS CLI configured
