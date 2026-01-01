@@ -1,0 +1,90 @@
+#!/bin/bash
+set -euxo pipefail
+
+TENANT="${tenant_name}"
+MESSAGE="${app_message}"
+
+dnf update -y
+dnf install -y nginx openssl util-linux
+
+systemctl enable nginx
+
+# Web page
+mkdir -p /usr/share/nginx/html
+cat > /usr/share/nginx/html/index.html <<EOF
+<html>
+  <head><title>${tenant_name}</title></head>
+  <body style="font-family: Arial; padding: 40px;">
+    <h1>${app_message}</h1>
+    <p><b>Tenant:</b> ${tenant_name}</p>
+    <p><b>Note:</b> Self-signed TLS cert (browser warning expected).</p>
+    <p><b>Time (UTC):</b> $(date -u)</p>
+  </body>
+</html>
+EOF
+
+# Self-signed cert
+mkdir -p /etc/nginx/certs
+openssl req -x509 -nodes -newkey rsa:2048 \
+  -keyout /etc/nginx/certs/self.key \
+  -out /etc/nginx/certs/self.crt \
+  -days 30 \
+  -subj "/CN=${tenant_name}.nip.io/O=MultiTenantDemo"
+
+# Nginx config: 80 -> 443 redirect, 443 serves content
+cat > /etc/nginx/conf.d/tenant.conf <<'EOF'
+server {
+  listen 80;
+  server_name _;
+  return 301 https://$host$request_uri;
+}
+
+server {
+  listen 443 ssl;
+  server_name _;
+
+  ssl_certificate     /etc/nginx/certs/self.crt;
+  ssl_certificate_key /etc/nginx/certs/self.key;
+
+  location / {
+    root   /usr/share/nginx/html;
+    index  index.html;
+  }
+}
+EOF
+
+nginx -t
+systemctl restart nginx
+
+# Mount EBS volume at /data (best-effort)
+mkdir -p /data
+
+DISK=""
+
+for i in {1..30}; do
+  if lsblk | grep -q "nvme1n1"; then
+    DISK="/dev/nvme1n1"
+    break
+  fi
+  if lsblk | grep -q "xvdf"; then
+    DISK="/dev/xvdf"
+    break
+  fi
+  sleep 2
+done
+
+# NOTE: use $${...} to prevent Terraform template interpolation
+if [ -n "$${DISK}" ]; then
+  if ! blkid "$${DISK}"; then
+    mkfs -t xfs "$${DISK}" || mkfs -t ext4 "$${DISK}"
+  fi
+
+  UUID=$(blkid -s UUID -o value "$${DISK}" || true)
+  if [ -n "$${UUID}" ]; then
+    grep -q "$${UUID}" /etc/fstab || echo "UUID=$${UUID} /data auto defaults,nofail 0 2" >> /etc/fstab
+    mount -a || true
+  fi
+fi
+
+echo "Tenant bootstrap complete"
+

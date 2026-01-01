@@ -1,0 +1,15 @@
+aws_region = "us-east-1"
+
+tenants = {
+  tenant1 = {
+    instance_type  = "t3.micro"
+    volume_size_gb = 8
+    app_message    = "Hello from Tenant 1"
+  }
+  tenant2 = {
+    instance_type  = "t3.micro"
+    volume_size_gb = 8
+    app_message    = "Hello from Tenant 2"
+  }
+}
+
