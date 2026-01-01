@@ -46,22 +46,24 @@ In production, this would be replaced with customer-owned domains and managed DN
 
 ## 📁 Repository Structure
 
+```text
 .
 ├── envs/
-│ └── demo/
-│ ├── main.tf
-│ ├── providers.tf
-│ ├── variables.tf
-│ ├── outputs.tf
-│ └── terraform.tfvars.example
+│   └── demo/
+│       ├── main.tf
+│       ├── providers.tf
+│       ├── variables.tf
+│       ├── outputs.tf
+│       └── terraform.tfvars.example
 ├── modules/
-│ └── tenant_aws_nip/
-│ ├── main.tf
-│ ├── variables.tf
-│ ├── outputs.tf
-│ └── user_data.sh.tftpl
+│   └── tenant_aws_nip/
+│       ├── main.tf
+│       ├── variables.tf
+│       ├── outputs.tf
+│       └── user_data.sh.tftpl
 └── docs/
-└── CUSTOMER_DOC.md
+    └── CUSTOMER_DOC.md
+
 
 
 ---
